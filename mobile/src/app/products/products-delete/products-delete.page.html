@@ -1,0 +1,45 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>products-delete</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+
+</ion-content>
+
+
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="products"></ion-back-button>
+    </ion-buttons>
+    <ion-title>product-delete</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-grid>
+
+    <ion-row>
+      <ion-col>
+        <p>
+          ¿Seguro que deseas borrar? </p>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+        <ion-col>
+          <ion-button expand="full" color="dark" [routerLink]="['/products/view', product_id]" routerDirection="back">No</ion-button>
+        </ion-col>
+
+        <ion-col>
+          <ion-button expand="full" color="danger" (click)="deleteProduct(product_id)">Yes</ion-button>
+        </ion-col>
+
+
+    </ion-row>
+
+  </ion-grid>
+</ion-content>

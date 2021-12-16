@@ -8,7 +8,7 @@ CREATE TABLE products(
     category  varchar(20),
     descripcion text(50) ,
     created_date datetime ,
-    modified_date datetime ,
+    modified_date datetime ,ñ
     PRIMARY KEY (product_id)
 );
 

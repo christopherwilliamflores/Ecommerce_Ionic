@@ -4,14 +4,18 @@ var express = require('express');
 var app = express();
 
 var mysql = require('mysql');
+
+var picturesDirectory = 'figures/';
+
+var fs = require("fs");
+
 var cors = require('cors');
-
 app.use(cors());
-app.use(express.json());
 
-app.get('/productos', getProductos);
-
-function getProductos(req,res){
+app.use(express.json({limit: '50mb'}));
+//-----------------------------------------------------------
+app.get('/products', getProducts);
+  function getProducts(req,res){
     //Step 0 : Definir la conexion a la BD 
     var connection = mysql.createConnection({
         host: 'localhost',
@@ -22,8 +26,9 @@ function getProductos(req,res){
     //Step 1 : Establecer la conexion
     connection.connect();
     //Step 2 : Mandar el query
-    var myQuery =  " SELECT * " +
-                   " FROM products;";
+    var myQuery =   " SELECT product_id, product_name, stock, price," +
+                    "category, descripcion, picture_url, created_date, modified_date"+
+                    " FROM products;";
 
     connection.query(myQuery, function(error, results, fields){
         //Ya tengon el resultado del query en 'results'
@@ -35,10 +40,42 @@ function getProductos(req,res){
     connection.end();
     });
 }
+//---------------------------------------------------------
+app.get('/products/:product_id', function(req, res){
+    //Step 0 : Definir la conexion a la BD 
+    var connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'christopher',
+        password: '5426212' ,
+        database: 'ecommerce'
+    });
+    //Step 1 : Establecer la conexion
+    connection.connect();
+    //Step 2 : Mandar el query
+    var myQuery =  " SELECT product_id, product_name, stock, price," +
+                  "category, descripcion, picture_url, created_date, modified_date" +
+                  " FROM products" +
+                  " WHERE product_id = ?";
+  var myValues = [req.params.product_id];
+
+  connection.query(myQuery, myValues, function(error, results, fields){
+    // Ya tengo el resultado del query en `results`. Si hay algun error, llegará en `error`
+    if (error) throw error;
+    
+    // Step 3: Procesar el resultado de la BD
+    res.send(results[0]);
+
+    // Step 4: Cerrar la conexion
+    connection.end();
+  });
+
+
+});
+
 
 //------------------------POST--------------------------
 
-app.post('/productos', function(req, res){
+app.post('/products', function(req, res){
     // Step 0: Definir la conexion a la BD
     var connection = mysql.createConnection({
        host: 'localhost',
@@ -51,11 +88,11 @@ app.post('/productos', function(req, res){
 
     // ;Step 2: Mandar el query
     var myQuery =   "INSERT INTO products(product_id,product_name,"+
-            "stock,price,category,descripcion,created_date,modified_date)"+
-            "VALUES (?,?,?,?,?,?,NOW(),NOW());";
+            "stock,price,category,descripcion,picture_url,created_date,modified_date)"+
+            "VALUES (?,?,?,?,?,?,?,NOW(),NOW());";
     
     // Guardando como arreglo
-    var myValues = [req.body.product_id, req.body.product_name, req.body.stock, req.body.price, req.body.category,req.body.descripcion, req.body.created_date,req.body.modified_date];
+    var myValues = [req.body.product_id, req.body.product_name, req.body.stock, req.body.price, req.body.category,req.body.descripcion,req.body.picture_url];
 
     connection.query(myQuery, myValues, function(error, results, fields){
         // Ya tengo el resultado del query en `results`. Si hay algun error, llegará en `error`
@@ -70,7 +107,7 @@ app.post('/productos', function(req, res){
 });
 
 //---------------------DELETE--------------------------
-app.delete('/productos/:product_id', function(req, res){
+app.delete('/products/:product_id', function(req, res){
     // the member_id value will be received in req.params.member_id
     // Step 0: Definir la conexion a la BD
 var connection = mysql.createConnection({
@@ -103,7 +140,7 @@ var connection = mysql.createConnection({
   });
 
 //--------------------------------------------PUT---------------------------------------------------------------
-   app.put('/productos/:product_id', function(req, res){
+   app.put('/products/:product_id', function(req, res){
      // Step 0: Definir la conexion a la BD
      var connection = mysql.createConnection({
        host: 'localhost',
@@ -145,6 +182,13 @@ var connection = mysql.createConnection({
         myValues.push(req.body.descripcion);
       }
 
+      if (req.body.picture_url){
+        myQuery += " , picture_url = ? ";
+        myValues.push(req.body.picture_url);
+      }
+
+      
+
       if (req.body.created_date){
         myQuery += " , created_date = ? ";
         myValues.push(req.body.created_date);
@@ -173,6 +217,20 @@ var connection = mysql.createConnection({
    });
 
 
+//post 
+
+app.post('/figures', function(req, res){
+  var fileName = `${new Date().getTime()}.jpeg`;
+  var picture_url = `${picturesDirectory}${fileName}`;
+
+  fs.writeFile(`${picture_url}`, req.body.picture, 'base64', function(error) {
+    if (error) throw error;
+
+    res.send({picture_url: picture_url});
+  });
+})
+
+app.use('/figures', express.static('figures'))
   
 
 app.listen(3000, function(){
