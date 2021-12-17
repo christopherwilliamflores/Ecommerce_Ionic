@@ -47,7 +47,7 @@ export class ProductsCreatePage implements OnInit {
             {
               id: new Date().getTime(),
               title: "New member",
-              body: `${values.fullname} is a new member. Don't forget to welcome him`,
+              body: `${values.product_name} is a new member. Don't forget to welcome him`,
               schedule: {
                 at: new Date(new Date().getTime() + 10000)
               }
