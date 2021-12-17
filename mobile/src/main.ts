@@ -7,6 +7,8 @@ import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 
+import { LocalNotifications } from '@capacitor/local-notifications';
+
 if (environment.production) {
   enableProdMode();
 }
@@ -16,3 +18,5 @@ platformBrowserDynamic().bootstrapModule(AppModule)
 
   // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);
+
+LocalNotifications.requestPermissions();

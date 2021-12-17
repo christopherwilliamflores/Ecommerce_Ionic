@@ -1,9 +1,9 @@
-import { ProductsService } from 'src/app/_services/products.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import {Router} from '@angular/router';
+import { ProductsService } from 'src/app/_services/products.service';
 import { PhotoService } from 'src/app/_services/photo.service';
-import { Photo } from '@capacitor/camera';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 @Component({
   selector: 'app-products-create',
@@ -41,6 +41,20 @@ export class ProductsCreatePage implements OnInit {
       response => {
         console.log(response);
         this.router.navigate(['/products']);
+
+        LocalNotifications.schedule({
+          notifications: [
+            {
+              id: new Date().getTime(),
+              title: "New member",
+              body: `${values.fullname} is a new member. Don't forget to welcome him`,
+              schedule: {
+                at: new Date(new Date().getTime() + 10000)
+              }
+            }
+          ]
+        })
+
       },
       error =>{
         console.error(error)
